@@ -1,7 +1,7 @@
 import customtkinter as ctk
 from openpyxl import Workbook, load_workbook
 import os
-from tkinter import ttk
+from tkinter import ttk, messagebox
 
 archivo_guardar = "Ayuntamiento.xlsx"
 fila_seleccionada = None
@@ -46,7 +46,6 @@ def actualizar_excel():
     wb = load_workbook(archivo_guardar)
     ws = wb.active
 
-    # Sobrescribimos la fila seleccionada
     ws.cell(row=fila_seleccionada, column=1, value=nombre)
     ws.cell(row=fila_seleccionada, column=2, value=apellido)
     ws.cell(row=fila_seleccionada, column=3, value=telefono)
@@ -59,6 +58,26 @@ def actualizar_excel():
     fila_seleccionada = None
     label_estado.configure(text="✏️ Editando registro...")
     boton_guardar.configure(text="Guardar", command=guardar_excel)
+
+def eliminar_registro():
+    item = tree.focus()
+    if not item:
+        return
+
+        confirmar = messagebox.askokcancel("confirmar eliminacion", "estas seguro?")
+        if not confirmar:
+            return
+
+    index_excel = tree.index(item) + 2
+
+    wb = load_workbook(archivo_guardar)
+    ws = wb.active
+
+    ws.delete_rows(index_excel)
+    wb.save(archivo_guardar)
+
+    mostrar_datos()
+    messagebox.showinfo("Eliminado", "Registro eliminado correctamente")
 
 
 def mostrar_datos():
@@ -162,6 +181,9 @@ tree.pack(fill="both", expand=True)
 
 button_volver = ctk.CTkButton(frame_tabla, text="volver a registro", command=lambda: cambiar_registro())
 button_volver.pack(pady=10)
+
+boton_eliminar = ctk.CTkButton(frame_tabla, text="Eliminar seleccionado", command=eliminar_registro)
+boton_eliminar.pack(pady=10)
 
 
 app.mainloop()
